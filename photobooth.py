@@ -20,7 +20,7 @@ from events import Rpi_GPIO as GPIO
 #####################
 
 # Screen size
-display_size = (1024, 600)
+display_size = (640, 480)
 
 # Maximum size of assembled image
 image_size = (2352, 1568)
@@ -35,10 +35,10 @@ picture_basename = datetime.now().strftime("%Y-%m-%d/pic")
 gpio_shutdown_channel = 24 # pin 18 in all Raspi-Versions
 
 # GPIO channel of switch to take pictures
-gpio_trigger_channel = 23 # pin 16 in all Raspi-Versions
+gpio_trigger_channel = 18 # pin 16 in all Raspi-Versions
 
 # GPIO output channel for (blinking) lamp
-gpio_lamp_channel = 4 # pin 7 in all Raspi-Versions
+gpio_lamp_channel = 23 # pin 7 in all Raspi-Versions
 
 # Waiting time in seconds for posing
 pose_time = 3
@@ -151,7 +151,7 @@ class Photobooth:
 
             # Display default message
             self.display.clear()
-            self.display.show_message("Hit the button!")
+            self.display.show_message("Press the button!")
             self.display.apply()
 
             # Wait for an event and handle it
@@ -161,7 +161,7 @@ class Photobooth:
     def _run_slideshow(self):
         while True:
             self.camera.set_idle()
-            self.slideshow.display_next("Hit the button!")
+            self.slideshow.display_next("Press the button!")
             tic = clock()
             while clock() - tic < self.slideshow_display_time:
                 self.check_and_handle_events()
@@ -363,7 +363,7 @@ class Photobooth:
                 remaining_attempts = remaining_attempts - 1
 
                 self.display.clear()
-                self.display.show_message("S M I L E !!!\n\n" + str(x+1) + " of 4")
+                self.display.show_message("SMILE!\n\nTaking photo " + str(x+1) + " of 4")
                 self.display.apply()
 
                 tic = clock()
