@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from glob import glob
 from sys import exit
-from time import sleep, clock
+from time import sleep, time
 
 from PIL import Image
 
@@ -20,7 +20,7 @@ from events import Rpi_GPIO as GPIO
 #####################
 
 # Screen size
-display_size = (640, 480)
+display_size = (854, 480)
 
 # Maximum size of assembled image
 image_size = (2352, 1568)
@@ -51,6 +51,14 @@ idle_slideshow = True
 
 # Display time of pictures in the slideshow
 slideshow_display_time = 5
+
+# Temp directory for storing pictures
+if os.access("/dev/shm", os.W_OK):
+    tmp_dir = "/dev/shm/"       # Don't abuse Raspberry Pi SD card, if possible
+    print("using shm")
+else:
+    tmp_dir = "/tmp/"
+    print("using tmp")
 
 ###############
 ### Classes ###
@@ -128,7 +136,7 @@ class Photobooth:
         self.idle_slideshow = idle_slideshow
         if self.idle_slideshow:
             self.slideshow_display_time = slideshow_display_time
-            self.slideshow = Slideshow(display_size, display_time, 
+            self.slideshow = Slideshow(display_size, display_time,
                                        os.path.dirname(os.path.realpath(picture_basename)))
 
         input_channels    = [ trigger_channel, shutdown_channel ]
@@ -143,7 +151,16 @@ class Photobooth:
         sleep(0.5)
         self.display.teardown()
         self.gpio.teardown()
+        self.remove_tempfiles()
         exit(0)
+
+    def remove_tempfiles(self):
+        for filename in glob(tmp_dir + "photobooth_*.jpg"):
+            try:
+                os.remove(filename)
+            except OSError:
+                pass
+
 
     def _run_plain(self):
         while True:
@@ -162,8 +179,8 @@ class Photobooth:
         while True:
             self.camera.set_idle()
             self.slideshow.display_next("Press the button!")
-            tic = clock()
-            while clock() - tic < self.slideshow_display_time:
+            tic = time()
+            while time() - tic < self.slideshow_display_time:
                 self.check_and_handle_events()
 
     def run(self):
@@ -194,6 +211,11 @@ class Photobooth:
             self.handle_event(e)
             r, e = self.display.check_for_event()
 
+    def clear_event_queue(self):
+        r, e = self.display.check_for_event()
+        while r:
+            r, e = self.display.check_for_event()
+
     def handle_gpio(self, channel):
         if channel in [ self.trigger_channel, self.shutdown_channel ]:
             self.display.trigger_event(channel)
@@ -221,7 +243,8 @@ class Photobooth:
         """Implements the actions for the different mousebutton events"""
         # Take a picture
         if key == 1:
-            self.take_picture()
+            print("Mouse click disabled")
+            #self.take_picture()
 
     def handle_gpio_event(self, channel):
         """Implements the actions taken for a GPIO event"""
@@ -318,17 +341,17 @@ class Photobooth:
 
     def show_counter(self, seconds):
         if self.camera.has_preview():
-            tic = clock()
-            toc = clock() - tic
+            tic = time()
+            toc = time() - tic
             while toc < seconds:
                 self.display.clear()
-                self.camera.take_preview("/tmp/photobooth_preview.jpg")
-                self.display.show_picture("/tmp/photobooth_preview.jpg", flip=True) 
+                self.camera.take_preview(tmp_dir + "photobooth_preview.jpg")
+                self.display.show_picture(tmp_dir + "photobooth_preview.jpg", flip=True)
                 self.display.show_message(str(seconds - int(toc)))
                 self.display.apply()
 
                 # Limit progress to 1 "second" per preview (e.g., too slow on Raspi 1)
-                toc = min(toc + 1, clock() - tic)
+                toc = min(toc + 1, time() - tic)
         else:
             for i in range(seconds):
                 self.display.clear()
@@ -362,21 +385,21 @@ class Photobooth:
             while remaining_attempts > 0:
                 remaining_attempts = remaining_attempts - 1
 
-                self.display.clear()
+                self.display.clear((255,230,200))
                 self.display.show_message("SMILE!\n\nTaking photo " + str(x+1) + " of 4")
                 self.display.apply()
 
-                tic = clock()
+                tic = time()
 
                 try:
-                    filenames[x] = self.camera.take_picture("/tmp/photobooth_%02d.jpg" % x)
+                    filenames[x] = self.camera.take_picture(tmp_dir + "photobooth_%02d.jpg" % x)
                     remaining_attempts = 0
                 except CameraException as e:
                     # On recoverable errors: display message and retry
                     if e.recoverable:
                         if remaining_attempts > 0:
                             self.display.clear()
-                            self.display.show_message(e.message)  
+                            self.display.show_message(e.message)
                             self.display.apply()
                             sleep(5)
                         else:
@@ -384,8 +407,8 @@ class Photobooth:
                     else:
                        raise e
 
-                # Measure used time and sleep a second if too fast 
-                toc = clock() - tic
+                # Measure used time and sleep a second if too fast
+                toc = time() - tic
                 if toc < 1.0:
                     sleep(1.0 - toc)
 
@@ -406,17 +429,18 @@ class Photobooth:
         # Reenable lamp
         self.gpio.set_output(self.lamp_channel, 1)
 
-
-
+        # clear the event queue to handle button being pressed more than once
+        self.clear_event_queue()
 
 #################
 ### Functions ###
 #################
 
 def main():
-    photobooth = Photobooth(display_size, picture_basename, image_size, pose_time, display_time, 
-                            gpio_trigger_channel, gpio_shutdown_channel, gpio_lamp_channel, 
+    photobooth = Photobooth(display_size, picture_basename, image_size, pose_time, display_time,
+                            gpio_trigger_channel, gpio_shutdown_channel, gpio_lamp_channel,
                             idle_slideshow, slideshow_display_time)
+    photobooth.clear_event_queue()
     photobooth.run()
     photobooth.teardown()
     return 0
