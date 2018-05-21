@@ -23,6 +23,7 @@ from events import Rpi_GPIO as GPIO
 display_size = (848, 480)
 
 # Maximum size of assembled image
+# camera takes photos @ 4752x3168
 image_size = (2352, 1568)
 
 # Size of pictures in the assembled image
@@ -341,6 +342,11 @@ class Photobooth:
 
     def show_counter(self, seconds):
         if self.camera.has_preview():
+            self.display.clear()
+            self.camera.take_preview(tmp_dir + "photobooth_preview.jpg")
+            self.display.show_picture(tmp_dir + "photobooth_preview.jpg", flip=True)
+            self.display.apply()
+
             tic = time()
             toc = time() - tic
             while toc < seconds:
@@ -386,7 +392,7 @@ class Photobooth:
                 remaining_attempts = remaining_attempts - 1
 
                 self.display.clear((255,230,200))
-                self.display.show_message("SMILE!\n\Photo " + str(x+1) + " of 4")
+                self.display.show_message("SMILE!\nPhoto " + str(x+1) + " of 4")
                 self.display.apply()
 
                 tic = time()
@@ -414,7 +420,7 @@ class Photobooth:
 
         # Show 'Wait'
         self.display.clear()
-        self.display.show_message("Please wait!\n\nProcessing...")
+        self.display.show_message("Please wait!")
         self.display.apply()
 
         # Assemble them
