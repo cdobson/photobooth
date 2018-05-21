@@ -366,7 +366,7 @@ class Photobooth:
 
         # Show pose message
         self.display.clear()
-        self.display.show_message("POSE!\n\nTaking four pictures...");
+        self.display.show_message("POSE!\n\nFour pictures...");
         self.display.apply()
         sleep(2)
 
@@ -386,7 +386,7 @@ class Photobooth:
                 remaining_attempts = remaining_attempts - 1
 
                 self.display.clear((255,230,200))
-                self.display.show_message("SMILE!\n\nTaking photo " + str(x+1) + " of 4")
+                self.display.show_message("SMILE!\n\Photo " + str(x+1) + " of 4")
                 self.display.apply()
 
                 tic = time()
