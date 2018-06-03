@@ -29,8 +29,11 @@ image_size = (2352, 1568)
 # Size of pictures in the assembled image
 thumb_size = (1176, 784)
 
-# Image basename
-picture_basename = datetime.now().strftime("%Y-%m-%d/pic")
+# (Processsed) image basename
+picture_basename = datetime.now().strftime("%Y-%m-%d/processed")
+
+# Original image basename
+original_basename = datetime.now().strftime("%Y-%m-%d/original")
 
 # GPIO channel of switch to shutdown the Photobooth
 gpio_shutdown_channel = 24 # pin 18 in all Raspi-Versions
@@ -336,12 +339,18 @@ class Photobooth:
         output_image.paste(img, offset)
 
         # Save assembled image
-        output_filename = self.pictures.get_next()
+        # output_filename = self.pictures.get_next()
+        output_filename = picture_basename + datetime.now().strftime("%H%M%S")
+
         output_image.save(output_filename, "JPEG")
         return output_filename
 
     def show_counter(self, seconds):
         if self.camera.has_preview():
+
+            # since changing clock() to time() the first countdown is a bit choppy,
+            # presumably because it's the first time the camera is used, the latency
+            # of which throws the timing off.
             self.display.clear()
             self.camera.take_preview(tmp_dir + "photobooth_preview.jpg")
             self.display.show_picture(tmp_dir + "photobooth_preview.jpg", flip=True)
@@ -398,7 +407,8 @@ class Photobooth:
                 tic = time()
 
                 try:
-                    filenames[x] = self.camera.take_picture(tmp_dir + "photobooth_%02d.jpg" % x)
+                    # filenames[x] = self.camera.take_picture(tmp_dir + "photobooth_%02d.jpg" % x)
+                    filenames[x] = self.camera.take_picture(original_basename + datetime.now().strftime("%H%M%S") + ".jpg")
                     remaining_attempts = 0
                 except CameraException as e:
                     # On recoverable errors: display message and retry
