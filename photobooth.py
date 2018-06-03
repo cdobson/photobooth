@@ -15,6 +15,8 @@ from camera import CameraException, Camera_gPhoto as CameraModule
 from slideshow import Slideshow
 from events import Rpi_GPIO as GPIO
 
+from Adafruit_Thermal import *
+
 #####################
 ### Configuration ###
 #####################
@@ -63,6 +65,8 @@ if os.access("/dev/shm", os.W_OK):
 else:
     tmp_dir = "/tmp/"
     print("using tmp")
+
+printer = Adafruit_Thermal("/dev/serial0", 19200, timeout=5)
 
 ###############
 ### Classes ###
@@ -437,6 +441,9 @@ class Photobooth:
         outfile = self.assemble_pictures(filenames)
 
         # Show pictures for 10 seconds
+
+        self.print_photo(filenames[3])
+
         self.display.clear()
         self.display.show_picture(outfile, size, (0,0))
         self.display.apply()
@@ -447,6 +454,23 @@ class Photobooth:
 
         # clear the event queue to handle button being pressed more than once
         self.clear_event_queue()
+
+    def print_photo(self, input_filename):
+        photoResize = 512, 384
+        thumbnailName = input_filename.replace(".jpg", "thumbnail.jpg")
+        Image.open(input_filename).resize(photoResize, Image.ANTIALIAS).transpose(2).save(thumbnailName)
+
+        printer.begin(90) # Warmup time
+        printer.setTimes(40000, 3000) # Set print and feed times
+        printer.justify('C') # Center alignment
+        printer.feed(3) # Add a few blank lines
+        printer.println("Amy and Chris's Photo Booth!")
+        printer.printImage(Image.open(thumbnailName), True)
+        printer.println("Photos will be available at")
+        printer.boldOn()
+        printer.println("www.dobsonwedding.co.uk")
+        printer.boldOff()
+        printer.feed(3) # Add a few blank lines
 
 #################
 ### Functions ###
