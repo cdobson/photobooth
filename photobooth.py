@@ -468,11 +468,14 @@ class Photobooth:
         printer.justify('C') # Center alignment
         printer.feed(3) # Add a few blank lines
         printer.println("Amy and Chris's Photo Booth!")
+        printer.feed(1)
         printer.printImage(Image.open(thumbnailName), True)
         printer.println("Photos will be available at")
         printer.boldOn()
+        printer.doubleHeightOn()
         printer.println("www.dobsonwedding.co.uk")
         printer.boldOff()
+        printer.doubleHeightOff()
         printer.feed(3) # Add a few blank lines
 
 #################
