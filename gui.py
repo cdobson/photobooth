@@ -81,7 +81,7 @@ class GUI_PyGame:
 
     def show_message(self, msg, color=(0,0,0), bg=(230,230,230), transparency=True, outline=(245,245,245)):
         # Choose font
-        font = pygame.font.Font('/home/pi/.fonts/clairehand/ClaireHandRegular.ttf', 144)
+        font = pygame.font.Font('/home/pi/.fonts/elsie/Elsie-Regular.ttf', 144)
         # Wrap and render text
         wrapped_text, text_height = self.wrap_text(msg, font, self.size)
         rendered_text = self.render_text(wrapped_text, text_height, 1, 1, font, color, bg, transparency, outline)
@@ -90,7 +90,7 @@ class GUI_PyGame:
 
     def show_button(self, text, pos, size=(0,0), color=(230,230,230), bg=(0,0,0), transparency=True, outline=(230,230,230)):
         # Choose font
-        font = pygame.font.Font('/home/pi/.fonts/clairehand/ClaireHandRegular.ttf', 72)
+        font = pygame.font.Font('/home/pi/.fonts/elsie/Elsie-Regular.ttf', 72)
         text_size = font.size(text)
         if size == (0,0):
             size = (text_size[0] + 4, text_size[1] + 4)
