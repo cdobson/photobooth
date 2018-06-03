@@ -340,7 +340,7 @@ class Photobooth:
 
         # Save assembled image
         # output_filename = self.pictures.get_next()
-        output_filename = picture_basename + datetime.now().strftime("%H%M%S")
+        output_filename = picture_basename + datetime.now().strftime("%H%M%S") + ".jpg"
 
         output_image.save(output_filename, "JPEG")
         return output_filename
