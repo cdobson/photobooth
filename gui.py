@@ -81,7 +81,7 @@ class GUI_PyGame:
 
     def show_message(self, msg, color=(0,0,0), bg=(230,230,230), transparency=True, outline=(245,245,245)):
         # Choose font
-        font = pygame.font.Font('/home/pi/.fonts/elsie/Elsie-Regular.ttf', 144)
+        font = pygame.font.Font('/home/pi/.fonts/clairehand/ClaireHandRegular.ttf', 144)
         # Wrap and render text
         wrapped_text, text_height = self.wrap_text(msg, font, self.size)
         rendered_text = self.render_text(wrapped_text, text_height, 1, 1, font, color, bg, transparency, outline)
@@ -90,15 +90,15 @@ class GUI_PyGame:
 
     def show_button(self, text, pos, size=(0,0), color=(230,230,230), bg=(0,0,0), transparency=True, outline=(230,230,230)):
         # Choose font
-        font = pygame.font.Font('/home/pi/.fonts/elsie/Elsie-Regular.ttf', 72)
+        font = pygame.font.Font('/home/pi/.fonts/clairehand/ClaireHandRegular.ttf', 72)
         text_size = font.size(text)
         if size == (0,0):
             size = (text_size[0] + 4, text_size[1] + 4)
         offset = ( (size[0] - text_size[0]) // 2, (size[1] - text_size[1]) // 2 )
 
         # Create Surface object and fill it with the given background
-        surface = pygame.Surface(self.size) 
-        surface.fill(bg) 
+        surface = pygame.Surface(self.size)
+        surface.fill(bg)
 
         # Render text
         rendered_text = font.render(text, 1, color)
@@ -133,9 +133,9 @@ class GUI_PyGame:
                 # Put words on the line as long as they fit
                 for word in words:
                     test_line = accumulated_line + word + " "
-                    # Build the line while the words fit.   
+                    # Build the line while the words fit.
                     if font.size(test_line)[0] < size[0]:
-                        accumulated_line = test_line 
+                        accumulated_line = test_line
                     else:
                         # Start a new line
                         line_height = font.size(accumulated_line)[1]
@@ -144,7 +144,7 @@ class GUI_PyGame:
                         else:
                             accumulated_height += line_height
                             final_lines.append(accumulated_line)
-                            accumulated_line = word + " " 
+                            accumulated_line = word + " "
                 # Finish requested_line
                 line_height = font.size(accumulated_line)[1]
                 if accumulated_height + line_height > size[1]:
@@ -154,7 +154,7 @@ class GUI_PyGame:
                     final_lines.append(accumulated_line)
             # Line fits as it is
             else:
-                accumulated_height += font.size(requested_line)[1] 
+                accumulated_height += font.size(requested_line)[1]
                 final_lines.append(requested_line)
 
         # Check height of wrapped text
@@ -175,12 +175,12 @@ class GUI_PyGame:
             raise GuiException("Invalid valign argument: " + str(valign))
 
         # Create Surface object and fill it with the given background
-        surface = pygame.Surface(self.size) 
-        surface.fill(bg) 
+        surface = pygame.Surface(self.size)
+        surface.fill(bg)
 
         # Blit one line after another
-        accumulated_height = 0 
-        for line in text: 
+        accumulated_height = 0
+        for line in text:
             maintext = font.render(line, 1, color)
             shadow = font.render(line, 1, outline)
             if halign == 0:     # left aligned
@@ -209,13 +209,13 @@ class GUI_PyGame:
         return surface
 
     def convert_event(self, event):
-        if event.type == pygame.QUIT: 
+        if event.type == pygame.QUIT:
             return True, Event(0, 0)
-        elif event.type == pygame.KEYDOWN: 
+        elif event.type == pygame.KEYDOWN:
             return True, Event(1, event.key)
-        elif event.type == pygame.MOUSEBUTTONUP: 
+        elif event.type == pygame.MOUSEBUTTONUP:
             return True, Event(2, (event.button, event.pos))
-        elif event.type >= pygame.USEREVENT: 
+        elif event.type >= pygame.USEREVENT:
             return True, Event(3, event.channel)
         else:
             return False, ''

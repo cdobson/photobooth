@@ -49,13 +49,15 @@ class Slideshow:
             # Recursively walk all entries in the directory
             for root, dirnames, filenames in os.walk(self.directory, followlinks=True):
                 for filename in filenames:
-                    filelist.append(os.path.join(root, filename))
+                    if "processed" in filename:
+                        filelist.append(os.path.join(root, filename))
         else:
             # Add all entries in the directory
             for item in os.listdir(self.directory):
                 filename = os.path.join(self.directory, item)
                 if os.path.isfile(filename):
-                    filelist.append(filename)
+                    if "processed" in filename:
+                        filelist.append(filename)
 
         self.filelist = filelist
         self.next = 0
@@ -110,7 +112,7 @@ class Slideshow:
 def sync_folders(source_directory, target_directory, wait_time):
     sleep(5)
     while True:
-        print("[" + datetime.now().strftime("%H:%M:%S") + "] Sync " 
+        print("[" + datetime.now().strftime("%H:%M:%S") + "] Sync "
                 + source_directory + " --> " + target_directory)
         try:
             cmd = "rsync -rtu " + source_directory + " " + target_directory
@@ -123,7 +125,7 @@ def main():
     # Start a thread for syncing files
     if len(source_directory) > 0:
         thread.start_new_thread(sync_folders, (source_directory, slideshow_directory, sync_time) )
-    
+
     # Start the slideshow
     slideshow = Slideshow(display_size, display_time, slideshow_directory, True)
     slideshow.run()
