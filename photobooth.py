@@ -15,6 +15,7 @@ from camera import CameraException, Camera_gPhoto as CameraModule
 from slideshow import Slideshow
 from events import Rpi_GPIO as GPIO
 
+sys.path.append("/home/pi/Python-Thermal-Printer")
 from Adafruit_Thermal import *
 
 #####################
