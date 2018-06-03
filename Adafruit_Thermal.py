@@ -35,7 +35,7 @@
 # Python 2.X code using the library usu. needs to include the next line:
 from __future__ import print_function
 from serial import Serial
-# import time
+import time
 import sys
 
 class Adafruit_Thermal(Serial):
@@ -733,3 +733,4 @@ class Adafruit_Thermal(Serial):
 		for arg in args:
 			self.write(str(arg))
 		self.write('\n')
+
