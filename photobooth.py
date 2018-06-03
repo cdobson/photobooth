@@ -381,7 +381,7 @@ class Photobooth:
 
         # Show pose message
         self.display.clear()
-        self.display.show_message("POSE!\n\nFour pictures...");
+        self.display.show_message("POSE!\nTaking four photos..");
         self.display.apply()
         sleep(2)
 
