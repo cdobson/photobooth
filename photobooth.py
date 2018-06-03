@@ -6,7 +6,8 @@ import sys
 from datetime import datetime
 from glob import glob
 from sys import exit
-from time import sleep, time
+from time import sleep
+import time
 
 from PIL import Image
 
@@ -189,8 +190,8 @@ class Photobooth:
         while True:
             self.camera.set_idle()
             self.slideshow.display_next("Press the button!")
-            tic = time()
-            while time() - tic < self.slideshow_display_time:
+            tic = time.time()
+            while time.time() - tic < self.slideshow_display_time:
                 self.check_and_handle_events()
 
     def run(self):
@@ -354,7 +355,7 @@ class Photobooth:
     def show_counter(self, seconds):
         if self.camera.has_preview():
 
-            # since changing clock() to time() the first countdown is a bit choppy,
+            # since changing clock() to time.time() the first countdown is a bit choppy,
             # presumably because it's the first time the camera is used, the latency
             # of which throws the timing off.
             self.display.clear()
@@ -362,8 +363,8 @@ class Photobooth:
             self.display.show_picture(tmp_dir + "photobooth_preview.jpg", flip=True)
             self.display.apply()
 
-            tic = time()
-            toc = time() - tic
+            tic = time.time()
+            toc = time.time() - tic
             while toc < seconds:
                 self.display.clear()
                 self.camera.take_preview(tmp_dir + "photobooth_preview.jpg")
@@ -372,7 +373,7 @@ class Photobooth:
                 self.display.apply()
 
                 # Limit progress to 1 "second" per preview (e.g., too slow on Raspi 1)
-                toc = min(toc + 1, time() - tic)
+                toc = min(toc + 1, time.time() - tic)
         else:
             for i in range(seconds):
                 self.display.clear()
@@ -410,7 +411,7 @@ class Photobooth:
                 self.display.show_message("SMILE!\nPhoto " + str(x+1) + " of 4")
                 self.display.apply()
 
-                tic = time()
+                tic = time.time()
 
                 try:
                     # filenames[x] = self.camera.take_picture(tmp_dir + "photobooth_%02d.jpg" % x)
@@ -430,7 +431,7 @@ class Photobooth:
                        raise e
 
                 # Measure used time and sleep a second if too fast
-                toc = time() - tic
+                toc = time.time() - tic
                 if toc < 1.0:
                     sleep(1.0 - toc)
 
