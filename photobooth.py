@@ -2,6 +2,7 @@
 # Created by br _at_ re-web _dot_ eu, 2015-2016
 
 import os
+import sys
 from datetime import datetime
 from glob import glob
 from sys import exit
