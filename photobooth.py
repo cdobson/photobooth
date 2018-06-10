@@ -215,6 +215,8 @@ class Photobooth:
             except Exception as e:
                 print('SERIOUS ERROR: ' + repr(e))
                 self.handle_exception("SERIOUS ERROR!")
+                # Handle events so we can still quit
+                self.check_and_handle_events()
 
     def check_and_handle_events(self):
         r, e = self.display.check_for_event()
@@ -443,14 +445,15 @@ class Photobooth:
         # Assemble them
         outfile = self.assemble_pictures(filenames)
 
-        # Show pictures for 10 seconds
-
-        self.print_photo(filenames[3])
-
+        # Show assembled photo with printing messages
         self.display.clear()
         self.display.show_picture(outfile, size, (0,0))
+        self.display.show_message("Printing...")
         self.display.apply()
-        sleep(self.display_time)
+        #sleep(self.display_time)
+
+        # print photo
+        self.print_photo(filenames[3])
 
         # Reenable lamp
         self.gpio.set_output(self.lamp_channel, 1)
@@ -461,22 +464,26 @@ class Photobooth:
     def print_photo(self, input_filename):
         photoResize = 512, 384
         thumbnailName = input_filename.replace(".jpg", "thumbnail.jpg")
-        Image.open(input_filename).resize(photoResize, Image.ANTIALIAS).transpose(2).save(thumbnailName)
+        Image.open(input_filename).resize(photoResize, Image.ANTIALIAS).transpose(4).save(thumbnailName)
 
         printer.begin(90) # Warmup time
         printer.setTimes(40000, 3000) # Set print and feed times
         printer.justify('C') # Center alignment
-        printer.feed(3) # Add a few blank lines
+        printer.feed(2) # Add a few blank lines
         printer.println("Amy and Chris's Photo Booth!")
         printer.feed(1)
         printer.printImage(Image.open(thumbnailName), True)
         printer.println("Photos will be available at")
         printer.boldOn()
-        printer.doubleHeightOn()
+        printer.setSize('L')
         printer.println("www.dobsonwedding.co.uk")
         printer.boldOff()
-        printer.doubleHeightOff()
-        printer.feed(3) # Add a few blank lines
+        printer.setSize('S')
+        printer.feed(1)
+        printer.upsideDownOn();
+        printer.println("---- TEAR DOWNWARDS ----")
+        printer.upsideDownOff();
+        printer.feed(2) # Add a few blank lines
 
 #################
 ### Functions ###
