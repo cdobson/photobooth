@@ -61,6 +61,8 @@ idle_slideshow = True
 # Display time of pictures in the slideshow
 slideshow_display_time = 5
 
+printing_enabled = True
+
 # Temp directory for storing pictures
 if os.access("/dev/shm", os.W_OK):
     tmp_dir = "/dev/shm/"       # Don't abuse Raspberry Pi SD card, if possible
@@ -453,7 +455,15 @@ class Photobooth:
         #sleep(self.display_time)
 
         # print photo
-        self.print_photo(filenames[3])
+        if printing_enabled:
+            self.print_photo(filenames[3])
+
+        # Show assembled photo with finished message
+        self.display.clear()
+        self.display.show_picture(outfile, size, (0,0))
+        self.display.show_message("Finished!")
+        self.display.apply()
+        sleep(3)
 
         # Reenable lamp
         self.gpio.set_output(self.lamp_channel, 1)
@@ -473,9 +483,10 @@ class Photobooth:
         printer.println("Amy and Chris's Photo Booth!")
         printer.feed(1)
         printer.printImage(Image.open(thumbnailName), True)
+        printer.feed(1)
         printer.println("Photos will be available at")
         printer.boldOn()
-        printer.setSize('L')
+        printer.setSize('M')
         printer.println("www.dobsonwedding.co.uk")
         printer.boldOff()
         printer.setSize('S')

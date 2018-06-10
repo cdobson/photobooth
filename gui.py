@@ -81,7 +81,13 @@ class GUI_PyGame:
 
     def show_message(self, msg, color=(0,0,0), bg=(230,230,230), transparency=True, outline=(245,245,245)):
         # Choose font
-        font = pygame.font.Font('/home/pi/.fonts/elsie/Elsie-Regular.ttf', 120)
+
+        fontSize = 120;
+
+        if len(msg) == 1:
+            fontSize = 160;
+
+        font = pygame.font.Font('/home/pi/.fonts/elsie/Elsie-Regular.ttf', fontSize)
         # Wrap and render text
         wrapped_text, text_height = self.wrap_text(msg, font, self.size)
         rendered_text = self.render_text(wrapped_text, text_height, 1, 1, font, color, bg, transparency, outline)
