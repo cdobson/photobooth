@@ -479,7 +479,7 @@ class Photobooth:
         printer.begin(90) # Warmup time
         printer.setTimes(40000, 3000) # Set print and feed times
         printer.justify('C') # Center alignment
-        printer.feed(2) # Add a few blank lines
+        printer.feed(1) # Add a few blank lines
         printer.println("Amy and Chris's Photo Booth!")
         printer.feed(1)
         printer.printImage(Image.open(thumbnailName), True)
@@ -491,9 +491,9 @@ class Photobooth:
         printer.boldOff()
         printer.setSize('S')
         printer.feed(1)
-        printer.upsideDownOn();
-        printer.println("---- TEAR DOWNWARDS ----")
-        printer.upsideDownOff();
+        printer.upsideDownOn()
+        printer.println("----- TEAR DOWNWARDS -----")
+        printer.upsideDownOff()
         printer.feed(2) # Add a few blank lines
 
 #################
