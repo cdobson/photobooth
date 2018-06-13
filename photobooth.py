@@ -480,7 +480,12 @@ class Photobooth:
         printer.setTimes(40000, 3000) # Set print and feed times
         printer.justify('C') # Center alignment
         printer.feed(1) # Add a few blank lines
-        printer.println("Amy and Chris's Photo Booth!")
+        printer.setSize('L')
+        printer.boldOn()
+        printer.println("Amy and Chris's")
+        printer.println("Photo Booth!")
+        printer.boldOff()
+        printer.setSize('S')
         printer.feed(1)
         printer.printImage(Image.open(thumbnailName), True)
         printer.feed(1)
