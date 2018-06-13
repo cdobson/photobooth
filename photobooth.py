@@ -491,9 +491,7 @@ class Photobooth:
         printer.boldOff()
         printer.setSize('S')
         printer.feed(1)
-        printer.upsideDownOn()
-        printer.println("----- TEAR DOWNWARDS -----")
-        printer.upsideDownOff()
+        printer.printImage(Image.open('/home/pi/photobooth/teardown2.png'), True)
         printer.feed(2) # Add a few blank lines
 
 #################
