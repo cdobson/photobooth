@@ -12,6 +12,10 @@ except ImportError:
 
 from events import Event
 
+import getpass
+
+usr = getpass.getuser()
+
 class GuiException(Exception):
     """Custom exception class to handle GUI class errors"""
 
@@ -33,7 +37,12 @@ class GUI_PyGame:
 
         # Store screen and size
         self.size = size
-        self.screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+
+        screenMode = pygame.FULLSCREEN
+        if usr == 'chris':
+            screenMode = pygame.RESIZABLE
+
+        self.screen = pygame.display.set_mode(size, screenMode)
 
         # Clear screen
         self.clear()
@@ -83,11 +92,14 @@ class GUI_PyGame:
         # Choose font
 
         fontSize = 120;
-
         if len(msg) == 1:
-            fontSize = 160;
+            fontSize = 240;
 
-        font = pygame.font.Font('/home/pi/.fonts/elsie/Elsie-Regular.ttf', fontSize)
+        if usr == 'chris':
+            font = pygame.font.Font(None, fontSize)
+        else:
+            font = pygame.font.Font('/home/pi/.fonts/elsie/Elsie-Regular.ttf', fontSize)
+
         # Wrap and render text
         wrapped_text, text_height = self.wrap_text(msg, font, self.size)
         rendered_text = self.render_text(wrapped_text, text_height, 1, 1, font, color, bg, transparency, outline)
@@ -96,7 +108,11 @@ class GUI_PyGame:
 
     def show_button(self, text, pos, size=(0,0), color=(230,230,230), bg=(0,0,0), transparency=True, outline=(230,230,230)):
         # Choose font
-        font = pygame.font.Font('/home/pi/.fonts/elsie/Elsie-Regular.ttf', 72)
+        if usr == 'chris':
+            font = pygame.font.Font(None, 72)
+        else:
+            font = pygame.font.Font('/home/pi/.fonts/elsie/Elsie-Regular.ttf', 72)
+
         text_size = font.size(text)
         if size == (0,0):
             size = (text_size[0] + 4, text_size[1] + 4)

@@ -2,6 +2,7 @@
 # Created by br@re-web.eu, 2015
 
 import subprocess
+from shutil import copyfile
 
 cv_enabled = False
 gphoto2cffi_enabled = False
@@ -46,7 +47,7 @@ class Camera_cv:
             self.cap.set(4, picture_size[1])
 
     def has_preview(self):
-        return True 
+        return True
 
     def take_preview(self, filename="/tmp/preview.jpg"):
         self.take_picture(filename)
@@ -62,6 +63,22 @@ class Camera_cv:
     def set_idle(self):
         pass
 
+class Camera_dummy:
+    def __init__(self, picture_size):
+        pass
+
+    def has_preview(self):
+        True
+
+    def take_preview(self, filename="/tmp/preview.jpg"):
+        copyfile('example.jpg', filename)
+
+    def take_picture(self, filename="/tmp/picture.jpg"):
+        copyfile('example.jpg', filename)
+        return filename
+
+    def set_idle(self):
+        pass
 
 class Camera_gPhoto:
     """Camera class providing functionality to take pictures using gPhoto 2"""
@@ -107,7 +124,7 @@ class Camera_gPhoto:
         if gphoto2cffi_enabled:
             self._save_picture(filename, self.cap.get_preview())
         elif piggyphoto_enabled:
-            self.cap.capture_preview(filename)	
+            self.cap.capture_preview(filename)
         else:
             raise CameraException("No preview supported!")
 

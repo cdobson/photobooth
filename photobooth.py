@@ -13,12 +13,16 @@ from PIL import Image
 
 from gui import GUI_PyGame as GuiModule
 # from camera import CameraException, Camera_cv as CameraModule
-from camera import CameraException, Camera_gPhoto as CameraModule
+# from camera import CameraException, Camera_gPhoto as CameraModule
+from camera import CameraException, Camera_dummy as CameraModule
 from slideshow import Slideshow
+
 from events import Rpi_GPIO as GPIO
 
-sys.path.append("/home/pi/Python-Thermal-Printer")
+sys.path.append("../Python-Thermal-Printer")
 from Adafruit_Thermal import *
+
+import getpass
 
 #####################
 ### Configuration ###
@@ -38,7 +42,7 @@ thumb_size = (1176, 784)
 picture_basename = datetime.now().strftime("%Y-%m-%d/processed")
 
 # Original image basename
-original_basename = datetime.now().strftime("%Y-%m-%d/original")
+original_basename = datetime.now().strftime("%Y-%m-%d/original/original")
 
 # GPIO channel of switch to shutdown the Photobooth
 gpio_shutdown_channel = 24 # pin 18 in all Raspi-Versions
@@ -61,7 +65,11 @@ idle_slideshow = True
 # Display time of pictures in the slideshow
 slideshow_display_time = 5
 
+user = getpass.getuser()
+
 printing_enabled = True
+if user == 'chris':
+    printing_enabled = False
 
 # Temp directory for storing pictures
 if os.access("/dev/shm", os.W_OK):
@@ -71,7 +79,13 @@ else:
     tmp_dir = "/tmp/"
     print("using tmp")
 
-printer = Adafruit_Thermal("/dev/serial0", 19200, timeout=5)
+try:
+    printer = Adafruit_Thermal("/dev/serial0", 19200, timeout=5)
+except:
+    printer = None
+
+print(getpass.getuser())
+#exit()
 
 ###############
 ### Classes ###
@@ -98,6 +112,8 @@ class PictureList:
         dirname = os.path.dirname(self.basename)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
+        if not os.path.exists(os.path.dirname(original_basename)):
+            os.makedirs(os.path.dirname(original_basename))
 
         # Find existing files
         count_pattern = "[0-9]" * self.count_width
@@ -214,11 +230,6 @@ class Photobooth:
             # Do not catch KeyboardInterrupt and SystemExit
             except (KeyboardInterrupt, SystemExit):
                 raise
-            except Exception as e:
-                print('SERIOUS ERROR: ' + repr(e))
-                self.handle_exception("SERIOUS ERROR!")
-                # Handle events so we can still quit
-                self.check_and_handle_events()
 
     def check_and_handle_events(self):
         r, e = self.display.check_for_event()
@@ -309,7 +320,7 @@ class Photobooth:
                |---|-------------|---|-------------|---|
                  a        w       2*b       w        a
         """
-
+        # (2352, 1568)
         # Thumbnail size of pictures
         outer_border = 50
         inner_border = 20
@@ -324,29 +335,34 @@ class Photobooth:
         # Image 0
         img = Image.open(input_filenames[0])
         img.thumbnail(thumb_size)
-        offset = ( thumb_box[0] - inner_border - img.size[0] ,
+        offset = ( thumb_box[0] - inner_border - img.size[0] - 35,
                    thumb_box[1] - inner_border - img.size[1] )
         output_image.paste(img, offset)
 
         # Image 1
         img = Image.open(input_filenames[1])
         img.thumbnail(thumb_size)
-        offset = ( thumb_box[0] + inner_border,
+        offset = ( thumb_box[0] + inner_border - 35,
                    thumb_box[1] - inner_border - img.size[1] )
         output_image.paste(img, offset)
 
         # Image 2
         img = Image.open(input_filenames[2])
         img.thumbnail(thumb_size)
-        offset = ( thumb_box[0] - inner_border - img.size[0] ,
+        offset = ( thumb_box[0] - inner_border - img.size[0] - 35,
                    thumb_box[1] + inner_border )
         output_image.paste(img, offset)
 
         # Image 3
         img = Image.open(input_filenames[3])
         img.thumbnail(thumb_size)
-        offset = ( thumb_box[0] + inner_border ,
+        offset = ( thumb_box[0] + inner_border - 35,
                    thumb_box[1] + inner_border )
+        output_image.paste(img, offset)
+
+        # Amy and Chris's Wedding
+        img = Image.open('assembledside.png')
+        offset = (2245, 50)
         output_image.paste(img, offset)
 
         # Save assembled image

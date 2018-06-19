@@ -4,14 +4,13 @@
 try:
     import RPi.GPIO as GPIO
     gpio_enabled = True
-except ImportError:
+except:
     gpio_enabled = False
-
 
 class Event:
     def __init__(self, type, value):
         """type  0: quit
-                 1: keystroke 
+                 1: keystroke
                  2: mouseclick
                  3: gpio
         """
